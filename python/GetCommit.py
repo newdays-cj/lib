@@ -6,9 +6,9 @@ import sys
 def SubjectHelper(subject):
     return subject
 
-def Get(subject, search_range, flag):
+def GetBySubject(subject, search_range, flag):
     subject = subject.strip("\n")
-    subject_re = subject.replace("\"", "\\\"").replace("\`", "\\\`")
+    subject_re = SubjectHelper(subject).replace("\"", "\\\"").replace("\`", "\\\`")
 
     cmd = "git log --pretty=oneline " + search_range + " | grep -F \"" + subject_re + "\""
     git_log = os.popen(cmd).readlines()
@@ -23,12 +23,15 @@ def Get(subject, search_range, flag):
             return __commit, __subject, __version
     return None, None, None
 
+def GetByCommit(commit, search_range, flag):
+    subject = os.popen("git log --pretty=oneline -n 1 " + commit).readline()[41:]
+    return GetBySubject(subject, search_range, flag)
+ 
 def main():
-   commit = sys.argv[1]
-   subject = os.popen("git log --pretty=oneline -n 1 " + commit).readline()[41:]
-   search_range = "v5.10..stable/linux-5.10.y"
-   commit, subject, version = Get(subject, search_range, True)
-   print(commit, subject, version)
+    commit = sys.argv[1]
+    search_range = "v5.10..stable/linux-5.10.y"
+    commit, subject, version = Get(subject, search_range, flag)
+    print(commit, subject, version)
 
 if __name__ == '__main__':
     main()
